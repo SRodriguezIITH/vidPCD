@@ -10,13 +10,18 @@ const WebcamCapture = () => {
   // Start capturing frames when the component mounts
   useEffect(() => {
     const startWebcam = async () => {
-      const constraints = {
-        video: {
-          facingMode: 'environment', // This will use the rear camera on mobile devices
-        },
-      };
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      videoRef.current.srcObject = stream;
+      try {
+        const constraints = {
+          video: {
+            facingMode: 'environment', // Try using rear camera on mobile devices
+          },
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoRef.current.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing the webcam:', error);
+        alert('Please allow camera access');
+      }
     };
 
     startWebcam();
@@ -42,13 +47,13 @@ const WebcamCapture = () => {
     }
   };
 
-  // Start capturing frames every 100ms (real-time capturing)
+  // Start capturing frames every 200ms (real-time capturing, 5 fps)
   useEffect(() => {
     let frameInterval;
     if (isCapturing) {
       frameInterval = setInterval(() => {
         captureFrame();
-      }, 100); // Adjust the interval as needed (100ms = 10 frames per second)
+      }, 200); // Adjust the interval to capture at 5 fps
     } else {
       clearInterval(frameInterval);
     }
@@ -60,7 +65,7 @@ const WebcamCapture = () => {
     <div className="webcam-container">
       <h1>VidPCD</h1>
       <div className="video-container">
-        <video ref={videoRef} width="640" height="480" autoPlay className="video-feed" />
+        <video ref={videoRef} width="100%" height="auto" autoPlay className="video-feed" />
       </div>
       <canvas ref={canvasRef} width="640" height="480" style={{ display: 'none' }} />
       <div className="controls">
